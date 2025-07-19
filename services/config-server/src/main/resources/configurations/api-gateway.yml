@@ -1,0 +1,60 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: customer-auth
+          uri: lb://customer-service
+          predicates:
+            - Path=/customer-service/api/v1/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: customer-protected
+          uri: lb://customer-service
+          predicates:
+            - Path=/customer-service/api/v1/admin/**, /customer-service/api/v1/customer/**
+          filters:
+            - StripPrefix=1
+            - name: JWTValidation
+
+        - id: car-protected
+          uri: lb://car-service
+          predicates:
+            - Path=/car-service/api/v1/admin/**, /car-service/api/v1/cars/**
+          filters:
+            - StripPrefix=1
+            - name: JWTValidation
+
+        - id: car-public
+          uri: lb://car-service
+          predicates:
+            - Path=/car-service/api/v1/public/**
+          filters:
+            - StripPrefix=1
+
+        - id: renting-service
+          uri: lb://renting-service
+          predicates:
+            - Path=/renting-service/**
+          filters:
+            - StripPrefix=1
+            - name: JWTValidation
+
+jwt:
+  secret: ijBppcckvyt9FifTWWA4Uh0LQNydMK7cMbW8HaLtbLnVu1bd4wk35ZVRNGpzmJxR
+  expiration: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always

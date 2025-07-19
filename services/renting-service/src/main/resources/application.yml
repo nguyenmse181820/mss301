@@ -1,0 +1,20 @@
+spring:
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  application:
+    name: renting-service
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# Car service configuration
+car-service:
+  url: http://car-service
